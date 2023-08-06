@@ -1,0 +1,33 @@
+{
+  "name": "Artblocks-Server",
+  "version": "1.0.0",
+  "description": "Serves script outputs for the Art Blocks smart contract.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/snowfro/artblocks-server-production.git"
+  },
+  "author": "Erick Calderon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/snowfro/artblocks-server-production/issues"
+  },
+  "homepage": "https://github.com/snowfro/artblocks-server-production#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "js-beautify": "^1.13.0",
+    "mime": "^2.4.6",
+    "pug": "^3.0.0",
+    "puppeteer": "^5.2.1",
+    "serve-favicon": "^2.5.0",
+    "web3": "^1.2.8"
+  },
+  "engines": {
+    "node": "10.20.1"
+  }
+}

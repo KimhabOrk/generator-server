@@ -32,7 +32,7 @@ const PORT = process.env.PORT || 8080;
 
 var web3 = new Web3(`https://eth-sepolia.g.alchemy.com/v2/qKOejal-tbfyH6_jIHxCGwExilHgqmbF`);
 const {abi} = require('./artifacts/IGenArt721CoreV3_Engine_Flex.json');
-const address = "0x7386A02Bd1FeAb67E781A57B09baf8cc1B6111d2";
+const address = "0xC2fE0C69f46C89342c1f8B704B80aDC84e7C8D06";
 const contract = new web3.eth.Contract(abi, address);
 console.log(address);
 

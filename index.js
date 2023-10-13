@@ -128,7 +128,7 @@ app.get('/token/:tokenId', async(request,response)=>{
 
        response.json(
          {
-           "platform":"Art Blocks",
+           "platform":"DiGi Gallery",
            "name":projectDetails.projectDescription.projectName + " #"+(request.params.tokenId-tokenDetails.projectId*1000000),
            "description":projectDetails.projectDescription.description,
            "external_url": projectDetails.projectURIInfo.projectBaseURI.slice(0,-6)+"generator/"+request.params.tokenId,

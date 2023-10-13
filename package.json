@@ -11,7 +11,6 @@
     "type": "git",
     "url": "git+https://github.com/KimhabOrk/generator-server.git"
   },
-  "author": "Erick Calderon",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/KimhabOrk/generator-server/issues"
@@ -26,5 +25,8 @@
     "puppeteer": "^5.2.1",
     "serve-favicon": "^2.5.0",
     "web3": "^1.2.8"
+  },
+  "engine": {
+    "node": "0.10.0"
   }
 }

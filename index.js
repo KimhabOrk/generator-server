@@ -32,7 +32,7 @@ const PORT = process.env.PORT || 8080;
 
 var web3 = new Web3(`https://eth-sepolia.g.alchemy.com/v2/qKOejal-tbfyH6_jIHxCGwExilHgqmbF`);
 const {abi} = require('./artifacts/IGenArt721CoreV3_Engine_Flex.json');
-const address = "0xC2fE0C69f46C89342c1f8B704B80aDC84e7C8D06";
+const address = "0x7483D0688AE42D4f6f3CaA93de5c878a7C002EfC";
 const contract = new web3.eth.Contract(abi, address);
 console.log(address);
 
@@ -60,31 +60,31 @@ app.get("/project/:projectId", async (request, response) =>{
     response.render('projectInfo', {
 		     name:projectDetails.projectDescription.projectName,
 		     artist: projectDetails.projectDescription.artistName,
-         description: projectDetails.projectDescription.description,
-         website: projectDetails.projectDescription.artistWebsite,
-         license: projectDetails.projectDescription.license,
-	       scriptJSON: JSON.stringify(projectDetails.projectScriptInfo.scriptJSON),
-         scriptType: projectDetails.projectScriptInfo.scriptJSON.type,
-         scriptVersion: projectDetails.projectScriptInfo.scriptJSON.version,
-         scriptRatio: projectDetails.projectScriptInfo.scriptJSON.aspectRatio,
-         instructions: projectDetails.projectScriptInfo.scriptJSON.instructions,
+                     description: projectDetails.projectDescription.description,
+                     website: projectDetails.projectDescription.artistWebsite,
+                     license: projectDetails.projectDescription.license,
+	             scriptJSON: JSON.stringify(projectDetails.projectScriptInfo.scriptJSON),
+                     scriptType: projectDetails.projectScriptInfo.scriptJSON.type,
+                     scriptVersion: projectDetails.projectScriptInfo.scriptJSON.version,
+                     scriptRatio: projectDetails.projectScriptInfo.scriptJSON.aspectRatio,
+                     instructions: projectDetails.projectScriptInfo.scriptJSON.instructions,
 		     script: beautifulScript,
 		     hashesGen: projectDetails.projectScriptInfo.hashesPerToken,
 		     isDynamic: projectDetails.projectDescription.dynamic,
-         artistAddress: projectDetails.projectTokenInfo.artistAddress,
-         additionalPayee: projectDetails.projectTokenInfo.additionalPayee,
-         additionalPayeePercentage: projectDetails.projectTokenInfo.additionalPayeePercentage,
-         price: web3.utils.fromWei(projectDetails.projectTokenInfo.pricePerTokenInWei, 'ether'),
-	       invocations: projectDetails.projectTokenInfo.invocations,
-         tokensOfProject: projectDetails.projectTokenInfo.tokens,
+                     artistAddress: projectDetails.projectTokenInfo.artistAddress,
+                     additionalPayee: projectDetails.projectTokenInfo.additionalPayee,
+                     additionalPayeePercentage: projectDetails.projectTokenInfo.additionalPayeePercentage,
+                     price: web3.utils.fromWei(projectDetails.projectTokenInfo.pricePerTokenInWei, 'ether'),
+	             invocations: projectDetails.projectTokenInfo.invocations,
+                     tokensOfProject: projectDetails.projectTokenInfo.tokens,
 		     maxInvocations: projectDetails.projectTokenInfo.maxInvocations,
-         active: projectDetails.projectTokenInfo.active,
-         paused: projectDetails.projectScriptInfo.paused
-	  })
-  } else {
-    response.send('project does not exist');
-  }
- }
+                     active: projectDetails.projectTokenInfo.active,
+                     paused: projectDetails.projectScriptInfo.paused
+	           })
+         } else {
+            response.send('project does not exist');
+         }
+      }
 });
 
 app.get("/", async (request, response) =>{
@@ -101,7 +101,7 @@ app.get("/platform", async (request, response) =>{
   response.render('platformInfo', {
 		name:platformInfo.name,
 		symbol:platformInfo.symbol,
-    address:address,
+                address:address,
 		totalSupply: platformInfo.totalSupply,
 		projects: projects,
 		nextProjectId:platformInfo.nextProjectId
@@ -185,8 +185,20 @@ app.get('/generator/:tokenId', async (request, response) => {
         response.render('generator_aframe', { script: script, data: data})
       } else if (projectDetails.projectScriptInfo.scriptJSON.type==='megavox'){
         response.render('generator_megavox', { script: script, data: data})
+      } else if (projectDetails.projectScriptInfo.scriptJSON.type==='tonejs'){
+        response.render('generator_tonejs', { script: script, data: data})
+      } else if (projectDetails.projectScriptInfo.scriptJSON.type==='paperjs'){
+        response.render('generator_paperjs', { script: script, data: data})
+      } else if (projectDetails.projectScriptInfo.scriptJSON.type==='babylon'){
+        response.render('generator_babylon', { script: script, data: data})
+      } else if (projectDetails.projectScriptInfo.scriptJSON.type==='svg'){
+        response.render('generator_svg', { script: script, data: data})
+      } else if (projectDetails.projectScriptInfo.scriptJSON.type==='regl'){
+        response.render('generator_regl', { script: script, data: data})
+      } else if (projectDetails.projectScriptInfo.scriptJSON.type==='zdog'){
+        response.render('generator_zdog', { script: script, data: data})
       } else if (projectDetails.projectScriptInfo.scriptJSON.type==='vox'){
-        response.render('generator_vox', { script: script, data: data})
+	response.render('generator_vox', { script: script, data: data})
       } else {
        response.render('generator_threejs', { script: script, data: data})
      }

@@ -31,9 +31,9 @@ var beautify = require('js-beautify').js;
 const PORT = process.env.PORT || 8080;
 
 var web3 = new Web3(`https://eth-sepolia.g.alchemy.com/v2/qKOejal-tbfyH6_jIHxCGwExilHgqmbF`);
-const {abi} = require('./artifacts/IGenArt721CoreV3_Engine_Flex.json');
-const address = "0x7483D0688AE42D4f6f3CaA93de5c878a7C002EfC";
-const contract = new web3.eth.Contract(abi, address);
+const contractABI = require('./artifacts/IGenArt721CoreV3_Engine_Flex.json');
+const contractAddress = "0x7483D0688AE42D4f6f3CaA93de5c878a7C002EfC";
+const contract = new web3.eth.Contract(contractABI, contractAddress);
 console.log(address);
 
 app.set('views', './views');

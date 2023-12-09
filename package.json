@@ -1,5 +1,5 @@
 {
-  "name": "Generator-Server",
+  "name": "api-server",
   "version": "1.0.0",
   "description": "Serves script outputs for the Art Blocks smart contract.",
   "main": "index.js",
@@ -22,11 +22,11 @@
     "js-beautify": "^1.13.0",
     "mime": "^2.4.6",
     "pug": "^3.0.0",
-    "puppeteer": "^5.2.1",
+    "puppeteer": "^21.3.7",
     "serve-favicon": "^2.5.0",
     "web3": "^4.0.3"
   },
   "engine": {
-    "node": "0.10.0"
+    "node": "0.16.0"
   }
 }

@@ -11,8 +11,8 @@ var beautify = require('js-beautify').js;
 const PORT = process.env.PORT || 8080;
 
 var web3 = new Web3(`https://eth-sepolia.g.alchemy.com/v2/qKOejal-tbfyH6_jIHxCGwExilHgqmbF`);
-const contractABI = require('./artifacts/DiGiGenArt721CoreV3_Engine.json');
-const contractAddress = "0x7483D0688AE42D4f6f3CaA93de5c878a7C002EfC";
+const contractABI = require('./artifacts/DiGiGenArt721CoreV3.json');
+const contractAddress = "0xc9181e6FC8A7Cfe16a296ec59c53B0B131597F0a";
 const contract = new web3.eth.Contract(contractABI, contractAddress);
 console.log(contractAddress);
 
@@ -374,4 +374,4 @@ function toBuffer(ab) {
 	return buf;
 }
 
-app.listen(PORT, () => console.log(`Art Blocks listening at http://localhost:${PORT}`))
+app.listen(PORT, () => console.log(`DiGi Art listening at http://localhost:${PORT}`))

@@ -95,7 +95,7 @@ app.get('/token/:tokenId', async (request, response) => {
 	} else {
 		const projectId = await getProjectId(request.params.tokenId);
 		const tokensOfProject = await contract.methods.projectStateData(projectId).call();
-		const exists = tokensOfProject.includes(request.params.tokenId);
+		const exists = tokensOfProject(request.params.tokenId);
 		console.log("exists? " + exists);
 		console.log('image request ' + request.params.tokenId);
 
@@ -149,7 +149,7 @@ app.get('/generator/:tokenId', async (request, response) => {
 	} else {
 		const projectId = await getProjectId(request.params.tokenId);
 		const tokensOfProject = await contract.methods.projectStateData(projectId).call();
-		const exists = tokensOfProject.includes(request.params.tokenId);
+		const exists = tokensOfProject(request.params.tokenId);
 		console.log("exists? " + exists);
 		//console.log('image request '+request.params.tokenId);
 
@@ -197,7 +197,7 @@ app.get("/vox/:tokenId", async (request, response) => {
 	} else {
 		const projectId = await getProjectId(request.params.tokenId);
 		const tokensOfProject = await contract.methods.projectStateData(projectId).call();
-		const exists = tokensOfProject.includes(request.params.tokenId);
+		const exists = tokensOfProject(request.params.tokenId);
 		console.log("exists? " + exists);
 		console.log('image request ' + request.params.tokenId);
 
@@ -233,7 +233,7 @@ app.get("/image/:tokenId/:refresh?", async (request, response) => {
 		} else {
 			const projectId = await getProjectId(request.params.tokenId);
 			const tokensOfProject = await contract.methods.projectStateData(projectId).call();
-			const exists = tokensOfProject.includes(request.params.tokenId);
+			const exists = tokensOfProject(request.params.tokenId);
 			const scriptInfo = await contract.methods.projectScriptInfo(projectId).call();
 			const scriptJSON = scriptInfo[0] && JSON.parse(scriptInfo[0]);
 			const ratio = eval(scriptJSON.aspectRatio ? scriptJSON.aspectRatio : 1);

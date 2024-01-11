@@ -89,7 +89,7 @@ app.get("/platform", async (request, response) => {
 	})
 })
 
-app.get('/token/:tokenId', async (request, response) => {
+app.get('/:tokenId', async (request, response) => {
 	const projectId = await contract.methods.tokenIdToProjectId(request.params.tokenId).call();
 	const projectDetails = await getDetails(projectId);
 	const tokenHashes = await getTokenHashes(request.params.tokenId);

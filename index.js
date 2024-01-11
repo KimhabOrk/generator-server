@@ -45,6 +45,7 @@ app.get("/project/:projectId", async (request, response) => {
 			const projectDetails = await getDetails(request.params.projectId);
 			let script = await getScript(request.params.projectId, projectDetails.projectScriptInfo.scriptCount);
 			let beautifulScript = beautify(script, { indent_size: 5, space_in_empty_paren: true });
+			response.setHeader("Content-Type", "text/html");
 			response.render('projectDetails', {
 				name: projectDetails.projectDescription.projectName,
 				artist: projectDetails.projectDescription.artistName,
@@ -94,7 +95,7 @@ app.get('/token/:tokenId', async (request, response) => {
 	const tokenHashes = await getTokenHashes(request.params.tokenId);
 	const royalties = await getTokenRoyaltyInfo(request.params.tokenId);
 	response.setHeader('Content-Type', 'application/json');
-	response.json(
+	response.send(
 		{
 			"platform": "DiGi Gallery",
 			"name": projectDetails.projectDescription.projectName + " #" + (request.params.tokenId),
@@ -122,7 +123,6 @@ app.get('/token/:tokenId', async (request, response) => {
 			"license": projectDetails.projectDescription.license,
 			"image": projectDetails.projectURIInfo.projectBaseURI.slice(0, -6) + "image/" + request.params.tokenId
 		});
-	response.send('token does not exist');
 });
 
 app.get('/generator/:tokenId', async (request, response) => {
@@ -158,6 +158,7 @@ app.get('/generator/:tokenId', async (request, response) => {
 
 });
 
+/*
 app.get("/image/:tokenId/:refresh?", async (request, response) => {
 	//check if token exists
 	if (!Number.isInteger(Number(request.params.tokenId))) {
@@ -192,7 +193,6 @@ app.get("/image/:tokenId/:refresh?", async (request, response) => {
 	}
 });
 
-
 async function serveScriptResult(tokenId, ratio) {
 	const result = await contract.methods.projectScriptDetails(projectId).call();
 	const width = Math.floor(result.ratio <= 1 ? 1200 * ratio : 1200);
@@ -221,7 +221,7 @@ async function serveScriptResult(tokenId, ratio) {
 
 	}
 }
-
+*/
 
 function timeout(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));

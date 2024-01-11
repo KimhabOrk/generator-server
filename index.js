@@ -301,7 +301,7 @@ function buildData(hashes, tokenId, type) {
 	let data = {};
 	data.hashes = hashes;
 	data.tokenId = tokenId;
-	return `let tokenData = ${JSON.stringify(data)}`;
+	return `let tokenData = ${JSON.parse(data)}`;
 }
 
 function toBuffer(ab) {

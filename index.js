@@ -129,7 +129,8 @@ app.get('/generator/:tokenId', async (request, response) => {
 	const projectId = await contract.methods.tokenIdToProjectId(request.params.tokenId).call();
 	const projectDetails = await getDetails(projectId);
 	const script = await getScript(projectId, projectDetails.projectScriptInfo.scriptCount);
-	const tokenData = await getToken(request.params.tokenId)
+	const Data = await getToken(request.params.tokenId);
+	const tokenData = beautify(Data, { indent_size: 5, space_in_empty_paren: true });
 	const data = buildData(tokenData.hashes, request.params.tokenId);
 	response.set('Content-Type', 'text/html');
 	if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'p5@1.0.0') {
@@ -301,7 +302,7 @@ function buildData(hashes, tokenId, type) {
 	let data = {};
 	data.hashes = hashes;
 	data.tokenId = tokenId;
-	return `let tokenData = ${JSON.parse(data)}`;
+	return `let tokenData = ${JSON.stringify(data)}`;
 }
 
 function toBuffer(ab) {

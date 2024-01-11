@@ -129,8 +129,7 @@ app.get('/generator/:tokenId', async (request, response) => {
 	const projectId = await contract.methods.tokenIdToProjectId(request.params.tokenId).call();
 	const projectDetails = await getDetails(projectId);
 	const script = await getScript(projectId, projectDetails.projectScriptInfo.scriptCount);
-	const Data = await getToken(request.params.tokenId);
-	const tokenData = beautify(Data, { indent_size: 5, space_in_empty_paren: true });
+	const tokenData = await getToken(request.params.tokenId);
 	const data = buildData(tokenData.hashes, request.params.tokenId);
 	response.set('Content-Type', 'text/html');
 	if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'p5@1.0.0') {

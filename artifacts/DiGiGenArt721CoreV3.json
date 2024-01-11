@@ -245,32 +245,6 @@
     "type": "event"
   },
   {
-    "inputs": [],
-    "name": "DIGI_ART_ERC721TOKEN_ADDRESS_V0",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "DIGI_ART_ERC721TOKEN_ADDRESS_V1",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "string",
@@ -477,7 +451,7 @@
   },
   {
     "inputs": [],
-    "name": "digiartsAddress",
+    "name": "digiAddress",
     "outputs": [
       {
         "internalType": "address payable",
@@ -490,7 +464,7 @@
   },
   {
     "inputs": [],
-    "name": "digiartsCurationRegistryAddress",
+    "name": "digiCurationRegistryAddress",
     "outputs": [
       {
         "internalType": "address",
@@ -503,7 +477,7 @@
   },
   {
     "inputs": [],
-    "name": "digiartsDependencyRegistryAddress",
+    "name": "digiDependencyRegistryAddress",
     "outputs": [
       {
         "internalType": "address",
@@ -516,7 +490,7 @@
   },
   {
     "inputs": [],
-    "name": "digiartsPercentage",
+    "name": "digiPercentage",
     "outputs": [
       {
         "internalType": "uint256",
@@ -529,7 +503,7 @@
   },
   {
     "inputs": [],
-    "name": "digiartsPrimarySalesAddress",
+    "name": "digiPrimarySalesAddress",
     "outputs": [
       {
         "internalType": "address payable",
@@ -542,7 +516,7 @@
   },
   {
     "inputs": [],
-    "name": "digiartsPrimarySalesPercentage",
+    "name": "digiPrimarySalesPercentage",
     "outputs": [
       {
         "internalType": "uint256",
@@ -555,7 +529,7 @@
   },
   {
     "inputs": [],
-    "name": "digiartsSecondarySalesAddress",
+    "name": "digiSecondarySalesAddress",
     "outputs": [
       {
         "internalType": "address payable",
@@ -568,7 +542,7 @@
   },
   {
     "inputs": [],
-    "name": "digiartsSecondarySalesBPS",
+    "name": "digiSecondarySalesBPS",
     "outputs": [
       {
         "internalType": "uint256",
@@ -641,12 +615,12 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "digiartsRevenue_",
+        "name": "digiRevenue_",
         "type": "uint256"
       },
       {
         "internalType": "address payable",
-        "name": "digiartsAddress_",
+        "name": "digiAddress_",
         "type": "address"
       },
       {
@@ -1595,11 +1569,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_digiartsCurationRegistryAddress",
+        "name": "_digiCurationRegistryAddress",
         "type": "address"
       }
     ],
-    "name": "updateDigiartCurationRegistryAddress",
+    "name": "updateDiGiCurationRegistryAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1608,11 +1582,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_digiartsDependencyRegistryAddress",
+        "name": "_digiDependencyRegistryAddress",
         "type": "address"
       }
     ],
-    "name": "updateDigiartDependencyRegistryAddress",
+    "name": "updateDiGiDependencyRegistryAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1621,11 +1595,11 @@
     "inputs": [
       {
         "internalType": "address payable",
-        "name": "_digiartsPrimarySalesAddress",
+        "name": "_digiPrimarySalesAddress",
         "type": "address"
       }
     ],
-    "name": "updateDigiartPrimarySalesAddress",
+    "name": "updateDiGiPrimarySalesAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1634,11 +1608,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "digiartsPrimarySalesPercentage_",
+        "name": "digiPrimarySalesPercentage_",
         "type": "uint256"
       }
     ],
-    "name": "updateDigiartPrimarySalesPercentage",
+    "name": "updateDiGiPrimarySalesPercentage",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1647,11 +1621,11 @@
     "inputs": [
       {
         "internalType": "address payable",
-        "name": "_digiartsSecondarySalesAddress",
+        "name": "_digiSecondarySalesAddress",
         "type": "address"
       }
     ],
-    "name": "updateDigiartSecondarySalesAddress",
+    "name": "updateDiGiSecondarySalesAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1660,11 +1634,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_digiartsSecondarySalesBPS",
+        "name": "_digiSecondarySalesBPS",
         "type": "uint256"
       }
     ],
-    "name": "updateDigiartSecondarySalesBPS",
+    "name": "updateDiGiSecondarySalesBPS",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

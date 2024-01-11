@@ -1,28 +1,36 @@
+'use stric';
 const express = require('express');
-const { Web3 } = require('web3');
 const app = express();
+const { Web3 } = require('web3');
 const fs = require('fs');
 var favicon = require('serve-favicon')
 const puppeteer = require('puppeteer');
 const cors = require('cors');
 const path = require('path');
 var beautify = require('js-beautify').js;
-
-const PORT = process.env.PORT || 8080;
+const Server = require('http').Server;
+const server = new Server(app);
+require('./polyfill.js');
 
 var web3 = new Web3(`https://eth-sepolia.g.alchemy.com/v2/qKOejal-tbfyH6_jIHxCGwExilHgqmbF`);
 const contractABI = require('./artifacts/DiGiGenArt721CoreV3.json');
-const contractAddress = "0xc9181e6FC8A7Cfe16a296ec59c53B0B131597F0a";
+const contractAddress = "0x151B912f2c7c1CB9CEc9d4e86cd1c2F7f2ECF77b";
 const contract = new web3.eth.Contract(contractABI, contractAddress);
 console.log(contractAddress);
 
 app.set('views', './views');
 app.set('view engine', 'pug');
 app.use(express.static(__dirname + './'));
-app.use(express.static('src'));
-
-
+app.use(express.static('views'));
 app.use(cors());
+
+app.use((request, response, next) => {
+	request.header("Content-Type", "application/json")
+	response.setHeader('Access-Control-Allow-Origin', '*');
+	response.setHeader("Content-Type", "application/json");
+	response.setHeader("Content-Type", "text/html");
+	next()
+});
 app.use(favicon(__dirname + '/favicon.ico'));
 let pathToHtml = path.join(__dirname, 'index.html');
 
@@ -37,26 +45,19 @@ app.get("/project/:projectId", async (request, response) => {
 			const projectDetails = await getDetails(request.params.projectId);
 			let script = await getScript(request.params.projectId, projectDetails.projectScriptInfo.scriptCount);
 			let beautifulScript = beautify(script, { indent_size: 5, space_in_empty_paren: true });
-			response.render('projectInfo', {
+			response.render('projectDetails', {
 				name: projectDetails.projectDescription.projectName,
 				artist: projectDetails.projectDescription.artistName,
 				description: projectDetails.projectDescription.description,
 				website: projectDetails.projectDescription.artistWebsite,
 				license: projectDetails.projectDescription.license,
-				scriptJSON: JSON.stringify(projectDetails.projectScriptInfo.scriptJSON),
-				scriptType: projectDetails.projectScriptInfo.scriptJSON.type,
-				scriptVersion: projectDetails.projectScriptInfo.scriptJSON.version,
-				scriptRatio: projectDetails.projectScriptInfo.scriptJSON.aspectRatio,
-				instructions: projectDetails.projectScriptInfo.scriptJSON.instructions,
+				scriptTypeAndVersion: projectDetails.projectScriptInfo.scriptTypeAndVersion,
+				scriptRatio: projectDetails.projectScriptInfo.aspectRatio,
 				script: beautifulScript,
-				hashesGen: projectDetails.projectScriptInfo.hashesPerToken,
-				isDynamic: projectDetails.projectDescription.dynamic,
 				artistAddress: projectDetails.projectTokenInfo.artistAddress,
 				additionalPayee: projectDetails.projectTokenInfo.additionalPayee,
 				additionalPayeePercentage: projectDetails.projectTokenInfo.additionalPayeePercentage,
-				price: web3.utils.fromWei(projectDetails.projectTokenInfo.pricePerTokenInWei, 'ether'),
 				invocations: projectDetails.projectTokenInfo.invocations,
-				tokensOfProject: projectDetails.projectTokenInfo.tokens,
 				maxInvocations: projectDetails.projectTokenInfo.maxInvocations,
 				active: projectDetails.projectTokenInfo.active,
 				paused: projectDetails.projectScriptInfo.paused
@@ -68,6 +69,7 @@ app.get("/project/:projectId", async (request, response) => {
 });
 
 app.get("/", async (request, response) => {
+	response.setHeader("Content-Type", "text/html")
 	response.render('home');
 })
 
@@ -77,148 +79,84 @@ app.get("/platform", async (request, response) => {
 	for (let i = 0; i < platformInfo.nextProjectId; i++) {
 		projects.push(i);
 	}
-
 	response.render('platformInfo', {
 		name: platformInfo.name,
 		symbol: platformInfo.symbol,
-		address: address,
-		totalSupply: platformInfo.totalSupply,
+		address: platformInfo.address,
 		projects: projects,
 		nextProjectId: platformInfo.nextProjectId
 	})
 })
 
 app.get('/token/:tokenId', async (request, response) => {
-	if (!Number.isInteger(Number(request.params.tokenId))) {
-		console.log("not integer");
-		response.send('invalid request');
-	} else {
-		const projectId = await getProjectId(request.params.tokenId);
-		const tokensOfProject = await contract.methods.projectStateData(projectId).call();
-		const exists = tokensOfProject(tokenId);
-		console.log("exists? " + exists);
-		console.log('image request ' + request.params.tokenId);
+	const projectId = await contract.methods.tokenIdToProjectId(request.params.tokenId).call();
+	const projectDetails = await getDetails(projectId);
+	const tokenHashes = await getTokenHashes(request.params.tokenId);
+	const royalties = await getTokenRoyaltyInfo(request.params.tokenId);
+	response.setHeader('Content-Type', 'application/json');
+	response.json(
+		{
+			"platform": "DiGi Gallery",
+			"name": projectDetails.projectDescription.projectName + " #" + (request.params.tokenId),
+			"description": projectDetails.projectDescription.description,
+			"external_url": projectDetails.projectURIInfo.projectBaseURI.slice(0, -6) + "generator/" + request.params.tokenId,
+			"artist": projectDetails.projectDescription.artistName,
+			"royaltyInfo": {
+				"artistAddress": royalties.artistAddress,
+				"additionalPayee": royalties.additionalPayee,
+				"additionalPayeePercentage": royalties.additionalPayeePercentage,
+				"royaltyFeeByID": royalties.royaltyFeeByID
+			},
+			"traits": [
+				{
+					"trait_type": "Project",
+					"value": projectDetails.projectDescription.projectName + " by " + projectDetails.projectDescription.artistName
+				}
+			],
 
-		if (exists) {
-			let tokenDetails = await getToken(request.params.tokenId);
-			let projectDetails = await getDetails(tokenDetails.projectId);
-			let tokenHashes = await getTokenHashes(request.params.tokenId);
-			let royalties = await getTokenRoyaltyInfo(request.params.tokenId);
-
-
-			response.json(
-			{
-				"platform": "DiGi Gallery",
-				"name": projectDetails.projectDescription.projectName + " #" + (request.params.tokenId - tokenDetails.projectId * 1000000),
-				"description": projectDetails.projectDescription.description,
-				"external_url": projectDetails.projectURIInfo.projectBaseURI.slice(0, -6) + "generator/" + request.params.tokenId,
-				"artist": projectDetails.projectDescription.artistName,
-				"royaltyInfo": {
-					"artistAddress": royalties.artistAddress,
-					"additionalPayee": royalties.additionalPayee,
-					"additionalPayeePercentage": royalties.additionalPayeePercentage,
-					"royaltyFeeByID": royalties.royaltyFeeByID
-				},
-				"traits": [
-					{
-						"trait_type": "Project",
-						"value": projectDetails.projectDescription.projectName + " by " + projectDetails.projectDescription.artistName
-					}
-           ],
-
-				"website": projectDetails.projectDescription.artistWebsite,
-				"is dynamic": projectDetails.projectDescription.dynamic,
-				"script type": projectDetails.projectScriptInfo.scriptJSON.type,
-				"aspect ratio (w/h)": projectDetails.projectScriptInfo.scriptJSON.aspectRatio,
-				"hashes per token": projectDetails.projectScriptInfo.hashesPerToken,
-				"tokenID": request.params.tokenId,
-				"token hash(es)": tokenHashes,
-				"license": projectDetails.projectDescription.license,
-				"image": projectDetails.projectURIInfo.projectBaseURI.slice(0, -6) + "image/" + request.params.tokenId
-			});
-		} else {
-			response.send('token does not exist');
-		}
-	}
+			"website": projectDetails.projectDescription.artistWebsite,
+			"script type": projectDetails.projectScriptInfo.scriptTypeAndVersion,
+			"aspect ratio (w/h)": projectDetails.projectScriptInfo.aspectRatio,
+			"tokenID": request.params.tokenId,
+			"tokenHash(es)": tokenHashes,
+			"license": projectDetails.projectDescription.license,
+			"image": projectDetails.projectURIInfo.projectBaseURI.slice(0, -6) + "image/" + request.params.tokenId
+		});
+	response.send('token does not exist');
 });
 
 app.get('/generator/:tokenId', async (request, response) => {
-	if (!Number.isInteger(Number(request.params.tokenId))) {
-		console.log("not integer");
-		response.send('invalid request');
+	const projectId = await contract.methods.tokenIdToProjectId(request.params.tokenId).call();
+	const projectDetails = await getDetails(projectId);
+	const script = await getScript(projectId, projectDetails.projectScriptInfo.scriptCount);
+	const tokenData = await getToken(request.params.tokenId)
+	const data = buildData(tokenData.hashes, request.params.tokenId);
+	response.set('Content-Type', 'text/html');
+	if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'p5@1.0.0') {
+		response.render('generator_p5js', { script: script, data: data })
+	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'aframe@1.0.0') {
+		response.render('generator_aframe', { script: script, data: data })
+	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'tone@1.0.0') {
+		response.render('generator_tonejs', { script: script, data: data })
+	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'paper@1.0.0') {
+		response.render('generator_paperjs', { script: script, data: data })
+	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'babylon@1.0.0') {
+		response.render('generator_babylon', { script: script, data: data })
+	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'svg@1.0.0') {
+		response.render('generator_svg', { script: script, data: data })
+	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'regl@1.0.0') {
+		response.render('generator_regl', { script: script, data: data })
+	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'zdog@1.0.0') {
+		response.render('generator_zdog', { script: script, data: data })
+	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'threejs@1.0.0') {
+		response.render('generator_threejs', { script: script, data: data })
+	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'js') {
+		response.render('generator_js', { script: script, data: data })
 	} else {
-		const projectId = await getProjectId(request.params.tokenId);
-		const tokensOfProject = await contract.methods.projectStateData(projectId).call();
-		const exists = tokensOfProject(tokenId);
-		console.log("exists? " + exists);
-		//console.log('image request '+request.params.tokenId);
-
-		if (exists) {
-			let tokenDetails = await getToken(request.params.tokenId);
-			let projectDetails = await getDetails(tokenDetails.projectId);
-			let script = await getScript(tokenDetails.projectId, projectDetails.projectScriptInfo.scriptCount);
-			let data = buildData(tokenDetails.hashes, request.params.tokenId);
-
-			if (projectDetails.projectScriptInfo.scriptJSON.type === 'p5js') {
-				response.render('generator_p5js', { script: script, data: data })
-			} else if (projectDetails.projectScriptInfo.scriptJSON.type === 'processing') {
-				response.render('generator_processing', { script: script, data: data })
-			} else if (projectDetails.projectScriptInfo.scriptJSON.type === 'a-frame') {
-				response.render('generator_aframe', { script: script, data: data })
-			} else if (projectDetails.projectScriptInfo.scriptJSON.type === 'megavox') {
-				response.render('generator_megavox', { script: script, data: data })
-			} else if (projectDetails.projectScriptInfo.scriptJSON.type === 'tonejs') {
-				response.render('generator_tonejs', { script: script, data: data })
-			} else if (projectDetails.projectScriptInfo.scriptJSON.type === 'paperjs') {
-				response.render('generator_paperjs', { script: script, data: data })
-			} else if (projectDetails.projectScriptInfo.scriptJSON.type === 'babylon') {
-				response.render('generator_babylon', { script: script, data: data })
-			} else if (projectDetails.projectScriptInfo.scriptJSON.type === 'svg') {
-				response.render('generator_svg', { script: script, data: data })
-			} else if (projectDetails.projectScriptInfo.scriptJSON.type === 'regl') {
-				response.render('generator_regl', { script: script, data: data })
-			} else if (projectDetails.projectScriptInfo.scriptJSON.type === 'zdog') {
-				response.render('generator_zdog', { script: script, data: data })
-			} else if (projectDetails.projectScriptInfo.scriptJSON.type === 'vox') {
-				response.render('generator_vox', { script: script, data: data })
-			} else {
-				response.render('generator_threejs', { script: script, data: data })
-			}
-		} else {
-			response.send('token does not exist');
-		}
+		response.send('token does not exist');
 	}
+
 });
-
-app.get("/vox/:tokenId", async (request, response) => {
-	if (!Number.isInteger(Number(request.params.tokenId))) {
-		console.log("not integer");
-		response.send('invalid request');
-	} else {
-		const projectId = await getProjectId(request.params.tokenId);
-		const tokensOfProject = await contract.methods.projectStateData(projectId).call();
-		const exists = tokensOfProject(tokenId);
-		console.log("exists? " + exists);
-		console.log('image request ' + request.params.tokenId);
-
-		if (exists) {
-			let tokenDetails = await getToken(request.params.tokenId);
-			let projectDetails = await getDetails(tokenDetails.projectId);
-			if (projectDetails.projectScriptInfo.scriptJSON.type === 'vox' || projectDetails.projectScriptInfo.scriptJSON.type === 'megavox') {
-				let script = await getScript(tokenDetails.projectId, projectDetails.projectScriptInfo.scriptCount);
-				let data = buildData(tokenDetails.hashes, request.params.tokenId);
-				let scriptAndData = `${data}${script}`;
-				var evalScript = eval(scriptAndData);
-				let array = voxx.export();
-				response.send(toBuffer(array));
-			} else {
-				response.send('token not a vox file');
-			}
-		} else {
-			response.send('token does not exist');
-		}
-	}
-})
 
 app.get("/image/:tokenId/:refresh?", async (request, response) => {
 	//check if token exists
@@ -256,8 +194,9 @@ app.get("/image/:tokenId/:refresh?", async (request, response) => {
 
 
 async function serveScriptResult(tokenId, ratio) {
-	const width = Math.floor(ratio <= 1 ? 1200 * ratio : 1200);
-	const height = Math.floor(ratio <= 1 ? 1200 : 1200 / ratio);
+	const result = await contract.methods.projectScriptDetails(projectId).call();
+	const width = Math.floor(result.ratio <= 1 ? 1200 * ratio : 1200);
+	const height = Math.floor(result.ratio <= 1 ? 1200 : 1200 / ratio);
 	const path = './images/' + tokenId + '.png';
 	try {
 
@@ -273,7 +212,7 @@ async function serveScriptResult(tokenId, ratio) {
 		await timeout(500);
 		const image = await page.screenshot();
 		await browser.close();
-		fs.writeFile("./images/" + tokenId + ".png", image, function(err) {
+		fs.writeFile("./images/" + tokenId + ".png", image, function (err) {
 
 		});
 		return image;
@@ -312,13 +251,13 @@ async function getScript(projectId, scriptCount) {
 }
 
 async function getScriptInfo(projectId) {
-	const result = await contract.methods.projectScriptInfo(projectId).call();
-	return { scriptJSON: result[0] && JSON.parse(result[0]), scriptCount: result[1], hashesPerToken: result[2], ipfsHash: result[3], locked: result[4], paused: result[5] };
+	const result = await contract.methods.projectScriptDetails(projectId).call();
+	return { scriptTypeAndVersion: result[0], scriptCount: result[1], aspectRatio: result[2] };
 }
 
 async function getProjectDescription(projectId) {
 	const result = await contract.methods.projectDetails(projectId).call();
-	return { projectName: result[0], artistName: result[1], description: result[2], artistWebsite: result[3], license: result[4], dynamic: result[5] };
+	return { projectName: result[0], artistName: result[1], description: result[2], artistWebsite: result[3], license: result[4] };
 }
 
 async function getURIInfo(projectId) {
@@ -328,8 +267,8 @@ async function getURIInfo(projectId) {
 
 async function getTokenDetails(projectId) {
 	const tokens = await contract.methods.projectStateData(projectId).call();
-	const result = await contract.methods.projectTokenInfo(projectId).call();
-	return { artistAddress: result[0], pricePerTokenInWei: result[1], invocations: result[2], maxInvocations: result[3], active: result[4], additionalPayee: result[5], additionalPayeePercentage: result[6], tokens: tokens };
+	const result = await contract.methods.projectArtistPaymentInfo(projectId).call();
+	return { artistAddress: result[0], invocations: result[1], maxInvocations: result[2], active: result[3], locked: result[4], additionalPayeePrimarySales: result[5], additionalPayeePrimarySalesPercentage: result[6], tokens: tokens };
 }
 
 async function getTokenRoyaltyInfo(tokenId) {
@@ -343,13 +282,13 @@ async function getTokenHashes(tokenId) {
 }
 
 async function getPlatformInfo() {
-	const totalSupply = await contract.methods.totalSupply().call();
+	//	const totalSupply = await contract.methods.totalSupply().call();
 	//const projectIds = await contract.methods.showAllProjectIds().call(); //cap S
 	const nextProjectId = await contract.methods.nextProjectId().call(); //change platofrm_
 	const name = await contract.methods.name().call();
 	const symbol = await contract.methods.symbol().call();
-
-	return { totalSupply, nextProjectId, name, symbol };
+	const address = '0xc9181e6FC8A7Cfe16a296ec59c53B0B131597F0a';
+	return { nextProjectId, name, symbol, address };
 }
 
 async function getProjectId(tokenId) {
@@ -374,4 +313,5 @@ function toBuffer(ab) {
 	return buf;
 }
 
-app.listen(PORT, () => console.log(`DiGi Art listening at http://localhost:${PORT}`))
+
+server.listen(8000, () => console.log(`DiGi Art listening at http://localhost:8000`))

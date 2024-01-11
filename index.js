@@ -287,7 +287,7 @@ async function getPlatformInfo() {
 	const nextProjectId = await contract.methods.nextProjectId().call(); //change platofrm_
 	const name = await contract.methods.name().call();
 	const symbol = await contract.methods.symbol().call();
-	const address = '0xc9181e6FC8A7Cfe16a296ec59c53B0B131597F0a';
+	const address = '0x151B912f2c7c1CB9CEc9d4e86cd1c2F7f2ECF77b';
 	return { nextProjectId, name, symbol, address };
 }
 

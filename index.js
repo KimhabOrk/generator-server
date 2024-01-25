@@ -122,7 +122,7 @@ app.get('/:tokenId', async (request, response) => {
 			"tokenID": request.params.tokenId,
 			"tokenHash": tokenHashes,
 			"license": projectDetails.projectDescription.license,
-			"image_url": "https://token.digigallery.xyz/image/" + request.params.tokenId
+			"image_url": "https://media.digigallery.xyz/image/" + request.params.tokenId
 		});
 });
 

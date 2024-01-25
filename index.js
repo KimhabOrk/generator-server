@@ -100,7 +100,7 @@ app.get('/:tokenId', async (request, response) => {
 			"platform": "DiGi Gallery",
 			"name": projectDetails.projectDescription.projectName + " #" + (request.params.tokenId),
 			"description": projectDetails.projectDescription.description,
-			"external_url": projectDetails.projectURIInfo.projectBaseURI.slice(0, -6) + "generator/" + request.params.tokenId,
+			"external_url": "https://token.digigallery.xyz/generator/" + request.params.tokenId,
 			"artist": projectDetails.projectDescription.artistName,
 			"royaltyInfo": {
 				"artistAddress": royalties.artistAddress,
@@ -121,7 +121,7 @@ app.get('/:tokenId', async (request, response) => {
 			"tokenID": request.params.tokenId,
 			"tokenHash(es)": tokenHashes,
 			"license": projectDetails.projectDescription.license,
-			"image": projectDetails.projectURIInfo.projectBaseURI.slice(0, -6) + "image/" + request.params.tokenId
+			"image_url": "https://token.digigallery.xyz/image/" + request.params.tokenId
 		});
 });
 
@@ -129,29 +129,30 @@ app.get('/generator/:tokenId', async (request, response) => {
 	const projectId = await contract.methods.tokenIdToProjectId(request.params.tokenId).call();
 	const projectDetails = await getDetails(projectId);
 	const script = await getScript(projectId, projectDetails.projectScriptInfo.scriptCount);
+	const finalScript = beautify(script, {indent_size: 2, space_in_empty_paren: true});
 	const tokenData = await getToken(request.params.tokenId);
 	const data = buildData(tokenData.hashes, request.params.tokenId);
 	response.set('Content-Type', 'text/html');
 	if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'p5@1.0.0') {
-		response.render('generator_p5js', { script: script, data: data })
+		response.render('generator_p5js', { finalScript: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'aframe@1.0.0') {
-		response.render('generator_aframe', { script: script, data: data })
+		response.render('generator_aframe', { finalScript: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'tone@1.0.0') {
-		response.render('generator_tonejs', { script: script, data: data })
+		response.render('generator_tonejs', { finalScript: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'paper@1.0.0') {
-		response.render('generator_paperjs', { script: script, data: data })
+		response.render('generator_paperjs', { finalScript: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'babylon@1.0.0') {
-		response.render('generator_babylon', { script: script, data: data })
+		response.render('generator_babylon', { finalScript: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'svg@1.0.0') {
-		response.render('generator_svg', { script: script, data: data })
+		response.render('generator_svg', { finalScript: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'regl@1.0.0') {
-		response.render('generator_regl', { script: script, data: data })
+		response.render('generator_regl', { finalScript: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'zdog@1.0.0') {
-		response.render('generator_zdog', { script: script, data: data })
+		response.render('generator_zdog', { finalScript: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'threejs@1.0.0') {
-		response.render('generator_threejs', { script: script, data: data })
+		response.render('generator_threejs', { finalScript: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'js') {
-		response.render('generator_js', { script: script, data: data })
+		response.render('generator_js', { finalScript: script, data: data })
 	} else {
 		response.send('token does not exist');
 	}
@@ -228,8 +229,8 @@ function timeout(ms) {
 };
 
 async function getToken(tokenId) {
-	const projectId = await getProjectId(tokenId);
-	const hashes = await getTokenHashes(tokenId);
+	const projectId = await contract.methods.tokenIdToProjectId(tokenId).call();
+	const hashes = await contract.methods.tokenIdToHash(tokenId).call();
 	return { tokenId, projectId, hashes };
 }
 

@@ -129,8 +129,7 @@ app.get('/:tokenId', async (request, response) => {
 app.get('/generator/:tokenId', async (request, response) => {
 	const projectId = await contract.methods.tokenIdToProjectId(request.params.tokenId).call();
 	const projectDetails = await getDetails(projectId);
-	const script = await getScript(projectId, projectDetails.projectScriptInfo.scriptCount);
-	const finalScript = JSON.stringify(script);
+	const script = await getScript(projectId);
 	const tokenData = await getToken(request.params.tokenId);
   const data = buildData(tokenData.hashes, request.params.tokenId);
 	response.set('Content-Type', 'text/html');

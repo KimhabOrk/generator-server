@@ -1,16 +1,19 @@
 html
   head
-    meta(charset='UTF-8')
-    meta(name='viewport', content='width=device-width, initial-scale=1')
+    meta (charset='UTF-8')
+    meta (name='viewport', content='width=device-width, initial-scale=1')
     title p5js
-    script(src='https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/p5.min.js', integrity='sha512-pgK6Wo8doipc/IPQ0ilH3b47ww01345nR9ud1/6Qp0n+lQlEW9zuw6JhysRcUpBY4yKuVZjn1MAkDxbnncuGsQ==', crossorigin='anonymous', referrerpolicy='no-referrer')
-    script.
-      #{data}
-    script(type='text/javascript').
+    script (src='https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/p5.min.js', integrity='sha512-pgK6Wo8doipc/IPQ0ilH3b47ww01345nR9ud1/6Qp0n+lQlEW9zuw6JhysRcUpBY4yKuVZjn1MAkDxbnncuGsQ==', crossorigin='anonymous', referrerpolicy='no-referrer')
+    script (type='text/javascript').
+      let tokenData = {
+      	hash: ${"hash"}
+      	tokenId: ${tokenId}
+      }
+    script (type='text/javascript').
       #{script}
-    script(src='https://code.jquery.com/jquery-3.5.1.slim.min.js', integrity='sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj', crossorigin='anonymous')
-    script(src='https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js', integrity='sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo', crossorigin='anonymous')
-    style(type='text/css').
+    script (src='https://code.jquery.com/jquery-3.5.1.slim.min.js', integrity='sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj', crossorigin='anonymous')
+    script (src='https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js', integrity='sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo', crossorigin='anonymous')
+    style (type='text/css').
       body {
       margin: 0;
       padding: 0;

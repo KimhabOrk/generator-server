@@ -2,8 +2,11 @@ html
   head
     script(src='https://cdnjs.cloudflare.com/ajax/libs/regl/2.1.0/regl.min.js')
     title regl
-    script.
-      #{data}
+    script (type='text/javascript').
+      let tokenData = {
+      	hash: ${"hash"}
+      	tokenId: ${tokenId}
+      }
     script(type='text/javascript').
       #{script}
     script(src='https://code.jquery.com/jquery-3.5.1.slim.min.js', integrity='sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj', crossorigin='anonymous')

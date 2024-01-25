@@ -101,7 +101,7 @@ app.get('/:tokenId', async (request, response) => {
 			"platform": "DiGi Gallery",
 			"name": projectDetails.projectDescription.projectName + " #" + (request.params.tokenId),
 			"description": projectDetails.projectDescription.description,
-			"external_url": "https://token.digigallery.xyz/generator/" + request.params.tokenId,
+			"external_url": "https://api.digigallery.xyz/generator/" + request.params.tokenId,
 			"artist": projectDetails.projectDescription.artistName,
 			"royaltyInfo": {
 				"artistAddress": royalties.artistAddress,
@@ -120,7 +120,7 @@ app.get('/:tokenId', async (request, response) => {
 			"script type": projectDetails.projectScriptInfo.scriptTypeAndVersion,
 			"aspect ratio (w/h)": projectDetails.projectScriptInfo.aspectRatio,
 			"tokenID": request.params.tokenId,
-			"tokenHash(es)": tokenHashes,
+			"tokenHash": tokenHashes,
 			"license": projectDetails.projectDescription.license,
 			"image_url": "https://token.digigallery.xyz/image/" + request.params.tokenId
 		});
@@ -132,28 +132,28 @@ app.get('/generator/:tokenId', async (request, response) => {
 	const script = await getScript(projectId, projectDetails.projectScriptInfo.scriptCount);
 	const finalScript = JSON.stringify(script);
 	const tokenData = await getToken(request.params.tokenId);
-	const data = buildData(tokenData.hashes, request.params.tokenId);
+//	const data = buildData(tokenData.hashes, request.params.tokenId);
 	response.set('Content-Type', 'text/html');
 	if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'p5@1.0.0') {
-		response.render('generator_p5js', { finalScript: script, data: data })
+		response.render('generator_p5js', { script: finalScript, hash: tokenData.hashes, tokenId: request.params.tokenId })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'aframe@1.0.0') {
-		response.render('generator_aframe', { finalScript: script, data: data })
+		response.render('generator_aframe', { script: finalScript, hash: tokenData.hashes, tokenId: request.params.tokenId })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'tone@1.0.0') {
-		response.render('generator_tonejs', { finalScript: script, data: data })
+		response.render('generator_tonejs', { script: finalScript, hash: tokenData.hashes, tokenId: request.params.tokenId })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'paper@1.0.0') {
-		response.render('generator_paperjs', { finalScript: script, data: data })
+		response.render('generator_paperjs', { script: finalScript, hash: tokenData.hashes, tokenId: request.params.tokenId })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'babylon@1.0.0') {
-		response.render('generator_babylon', { finalScript: script, data: data })
+		response.render('generator_babylon', { script: finalScript, hash: tokenData.hashes, tokenId: request.params.tokenId })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'svg@1.0.0') {
-		response.render('generator_svg', { finalScript: script, data: data })
+		response.render('generator_svg', { script: finalScript, hash: tokenData.hashes, tokenId: request.params.tokenId })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'regl@1.0.0') {
-		response.render('generator_regl', { finalScript: script, data: data })
+		response.render('generator_regl', { script: finalScript, hash: tokenData.hashes, tokenId: request.params.tokenId })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'zdog@1.0.0') {
-		response.render('generator_zdog', { finalScript: script, data: data })
+		response.render('generator_zdog', { script: finalScript, hash: tokenData.hashes, tokenId: request.params.tokenId })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'threejs@1.0.0') {
-		response.render('generator_threejs', { finalScript: script, data: data })
+		response.render('generator_threejs', { script: finalScript, hash: tokenData.hashes, tokenId: request.params.tokenId })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'js') {
-		response.render('generator_js', { finalScript: script, data: data })
+		response.render('generator_js', { script: finalScript, hash: tokenData.hashes, tokenId: request.params.tokenId })
 	} else {
 		response.send('token does not exist');
 	}
@@ -298,10 +298,10 @@ async function getProjectId(tokenId) {
 	return result;
 }
 
-function buildData(hashes, tokenId, type) {
+function buildData(hash, tokenId) {
 	//to expose token hashes use let hashes = tokenData.hashes[0] (example if only one hash is minted)
 	let data = {};
-	data.hashes = hashes;
+	data.hash = hash;
 	data.tokenId = tokenId;
 	return `let tokenData = ${JSON.stringify(data)}`;
 }

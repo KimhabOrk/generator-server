@@ -61,7 +61,8 @@ app.get("/project/:projectId", async (request, response) => {
 				invocations: projectDetails.projectTokenInfo.invocations,
 				maxInvocations: projectDetails.projectTokenInfo.maxInvocations,
 				active: projectDetails.projectTokenInfo.active,
-				paused: projectDetails.projectScriptInfo.paused
+				paused: projectDetails.projectTokenInfo.paused,
+				locked: projectDetails.projectTokenInfo.locked
 			})
 		} else {
 			response.send('project does not exist');
@@ -129,7 +130,7 @@ app.get('/generator/:tokenId', async (request, response) => {
 	const projectId = await contract.methods.tokenIdToProjectId(request.params.tokenId).call();
 	const projectDetails = await getDetails(projectId);
 	const script = await getScript(projectId, projectDetails.projectScriptInfo.scriptCount);
-	const finalScript = beautify(script, {indent_size: 2, space_in_empty_paren: true});
+	const finalScript = JSON.stringify(script);
 	const tokenData = await getToken(request.params.tokenId);
 	const data = buildData(tokenData.hashes, request.params.tokenId);
 	response.set('Content-Type', 'text/html');
@@ -269,7 +270,7 @@ async function getURIInfo(projectId) {
 async function getTokenDetails(projectId) {
 	const tokens = await contract.methods.projectStateData(projectId).call();
 	const result = await contract.methods.projectArtistPaymentInfo(projectId).call();
-	return { artistAddress: result[0], invocations: result[1], maxInvocations: result[2], active: result[3], locked: result[4], additionalPayeePrimarySales: result[5], additionalPayeePrimarySalesPercentage: result[6], tokens: tokens };
+	return { artistAddress: result[0], invocations: result[1], maxInvocations: result[2], active: result[3], paused: result[4], locked: result[5], additionalPayeePrimarySales: result[6], additionalPayeePrimarySalesPercentage: result[7], tokens: tokens };
 }
 
 async function getTokenRoyaltyInfo(tokenId) {

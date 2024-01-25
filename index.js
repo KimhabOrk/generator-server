@@ -86,7 +86,6 @@ app.get("/platform", async (request, response) => {
 		name: platformInfo.name,
 		symbol: platformInfo.symbol,
 		address: platformInfo.address,
-		projects: projects,
 		nextProjectId: platformInfo.nextProjectId
 	})
 })

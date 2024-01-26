@@ -31,7 +31,7 @@ app.use((request, response, next) => {
 	response.setHeader("Content-Type", "text/html");
 	next()
 });
-app.use(favicon(__dirname + '/favicon.ico'));
+app.use(favicon(__dirname + '/favicon.png'));
 let pathToHtml = path.join(__dirname, 'index.html');
 
 app.get("/project/:projectId", async (request, response) => {

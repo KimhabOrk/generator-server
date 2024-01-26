@@ -44,7 +44,7 @@ app.get("/project/:projectId", async (request, response) => {
 		if (exists) {
 			const projectDetails = await getDetails(request.params.projectId);
 			const projectState = await contract.methods.projectStateData(request.params.projectId).call();
-			let script = await getScripts(request.params.projectId, projectDetails.projectScriptInfo.scriptCount);
+			let script = await getScript(request.params.projectId, projectDetails.projectScriptInfo.scriptCount);
 			let beautifulScript = beautify(script, { indent_size: 5, space_in_empty_paren: true });
 			response.setHeader("Content-Type", "text/html");
 			response.render('projectDetails', {
@@ -242,18 +242,13 @@ async function getDetails(projectId) {
 	return { projectDescription, projectScriptInfo, projectTokenInfo, projectURIInfo };
 }
 
-async function getScripts(projectId, scriptCount) {
+async function getScript(projectId, scriptCount) {
 	let scripts = [];
 	for (let i = 0; i < scriptCount; i++) {
 		let newScript = await contract.methods.projectScriptByIndex(projectId, i).call();
 		scripts.push(newScript);
 	}
 	return scripts.join(' ');
-}
-
-async function getScript(projectId) {
-	const result = await getScrips(projectId);
-	return JSON.parse(result.getScrips.scripts);
 }
 
 async function getScriptInfo(projectId) {

@@ -134,25 +134,25 @@ app.get('/generator/:tokenId', async (request, response) => {
   const data = buildData(tokenData.hashes, request.params.tokenId);
 	response.set('Content-Type', 'text/html');
 	if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'p5@1.0.0') {
-		response.render('generator_p5js', { script: finalScript, data: data })
+		response.render('generator_p5js', { script: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'aframe@1.0.0') {
-		response.render('generator_aframe', { script: finalScript, data: data })
+		response.render('generator_aframe', { script: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'tone@1.0.0') {
-		response.render('generator_tonejs', { script: finalScript, data: data })
+		response.render('generator_tonejs', { script: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'paper@1.0.0') {
-		response.render('generator_paperjs', { script: finalScript, data: data })
+		response.render('generator_paperjs', { script: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'babylon@1.0.0') {
-		response.render('generator_babylon', { script: finalScript, data: data })
+		response.render('generator_babylon', { script: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'svg@1.0.0') {
-		response.render('generator_svg', { script: finalScript, data: data })
+		response.render('generator_svg', { script: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'regl@1.0.0') {
-		response.render('generator_regl', { script: finalScript, data: data })
+		response.render('generator_regl', { script: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'zdog@1.0.0') {
-		response.render('generator_zdog', { script: finalScript, data: data })
+		response.render('generator_zdog', { script: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'threejs@1.0.0') {
-		response.render('generator_threejs', { script: finalScript, data: data })
+		response.render('generator_threejs', { script: script, data: data })
 	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'js') {
-		response.render('generator_js', { script: finalScript, data: data })
+		response.render('generator_js', { script: script, data: data })
 	} else {
 		response.send('token does not exist');
 	}
@@ -242,13 +242,18 @@ async function getDetails(projectId) {
 	return { projectDescription, projectScriptInfo, projectTokenInfo, projectURIInfo };
 }
 
-async function getScript(projectId, scriptCount) {
+async function getScripts(projectId, scriptCount) {
 	let scripts = [];
 	for (let i = 0; i < scriptCount; i++) {
 		let newScript = await contract.methods.projectScriptByIndex(projectId, i).call();
 		scripts.push(newScript);
 	}
 	return scripts.join(' ');
+}
+
+async function getScript(projectId) {
+	const result = await getScrips(projectId, scriptCount);
+	return JSON.parse(result)
 }
 
 async function getScriptInfo(projectId) {
@@ -302,7 +307,7 @@ function buildData(hash, tokenId) {
 	let data = {};
 	data.hash = hash;
 	data.tokenId = tokenId;
-	return `let tokenData = ${JSON.stringify(data)}`;
+	return `let tokenData = ${JSON.parse(data)}`;
 }
 
 function toBuffer(ab) {

@@ -44,7 +44,7 @@ app.get("/project/:projectId", async (request, response) => {
 		if (exists) {
 			const projectDetails = await getDetails(request.params.projectId);
 			const projectState = await contract.methods.projectStateData(request.params.projectId).call();
-			let script = await getScript(request.params.projectId, projectDetails.projectScriptInfo.scriptCount);
+			let script = await getScripts(request.params.projectId, projectDetails.projectScriptInfo.scriptCount);
 			let beautifulScript = beautify(script, { indent_size: 5, space_in_empty_paren: true });
 			response.setHeader("Content-Type", "text/html");
 			response.render('projectDetails', {

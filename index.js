@@ -252,8 +252,8 @@ async function getScripts(projectId, scriptCount) {
 }
 
 async function getScript(projectId) {
-	const result = await getScrips(projectId, scriptCount);
-	return JSON.parse(result)
+	const result = await getScrips(projectId);
+	return JSON.parse(result.getScrips.scripts);
 }
 
 async function getScriptInfo(projectId) {

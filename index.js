@@ -59,8 +59,8 @@ app.get("/project/:projectId", async (request, response) => {
 				artistAddress: projectDetails.projectTokenInfo.artistAddress,
 				additionalPayee: projectDetails.projectTokenInfo.additionalPayee,
 				additionalPayeePercentage: projectDetails.projectTokenInfo.additionalPayeePercentage,
-				invocations: projectDetails.projectTokenInfo.invocations,
-				maxInvocations: projectDetails.projectTokenInfo.maxInvocations,
+				invocations: projectState.invocations,
+				maxInvocations: projectState.maxInvocations,
 				active: projectState.active,
 				paused: projectState.paused,
 				locked: projectState.locked

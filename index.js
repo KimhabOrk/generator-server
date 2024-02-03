@@ -4,7 +4,7 @@ const app = express();
 const { Web3 } = require('web3');
 const fs = require('fs');
 var favicon = require('serve-favicon')
-const puppeteer = require('puppeteer');
+// const puppeteer = require('puppeteer');
 const cors = require('cors');
 const path = require('path');
 var beautify = require('js-beautify').js;
@@ -91,74 +91,73 @@ app.get("/platform", async (request, response) => {
 })
 
 app.get('/:tokenId', async (request, response) => {
-	const projectId = await contract.methods.tokenIdToProjectId(request.params.tokenId).call();
-	const projectDetails = await getDetails(projectId);
-	const tokenHashes = await getTokenHashes(request.params.tokenId);
-	const royalties = await getTokenRoyaltyInfo(request.params.tokenId);
-	response.setHeader('Content-Type', 'application/json');
-	response.send(
-		{
-			"platform": "DiGi Gallery",
-			"name": projectDetails.projectDescription.projectName + " #" + (request.params.tokenId),
-			"description": projectDetails.projectDescription.description,
-			"external_url": "https://api.digigallery.xyz/generator/" + request.params.tokenId,
-			"artist": projectDetails.projectDescription.artistName,
-			"royaltyInfo": {
-				"artistAddress": royalties.artistAddress,
-				"additionalPayee": royalties.additionalPayee,
-				"additionalPayeePercentage": royalties.additionalPayeePercentage,
-				"royaltyFeeByID": royalties.royaltyFeeByID
-			},
-			"traits": [
-				{
-					"trait_type": "Project",
-					"value": projectDetails.projectDescription.projectName + " by " + projectDetails.projectDescription.artistName
+  const projectId = await contract.methods.tokenIdToProjectId(request.params.tokenId).call();
+  const projectDetails = await getDetails(projectId);
+  const tokenHashes = await getTokenHashes(request.params.tokenId);
+  const royalties = await getTokenRoyaltyInfo(request.params.tokenId);
+  response.setHeader('Content-Type', 'application/json');
+  response.send(
+  {
+    "platform": "DiGi Gallery",
+    "name": projectDetails.projectDescription.projectName + " #" + (request.params.tokenId),
+    "description": projectDetails.projectDescription.description,
+    "external_url": projectDetails.projectURIInfo.projectBaseURI.slice(0, -6) + "generator/" + request.params.tokenId,
+    "artist": projectDetails.projectDescription.artistName,
+    "royaltyInfo": {
+      "artistAddress": royalties.artistAddress,
+      "additionalPayee": royalties.additionalPayee,
+      "additionalPayeePercentage": royalties.additionalPayeePercentage,
+      "royaltyFeeByID": royalties.royaltyFeeByID
+    },
+    "traits": [
+      {
+        "trait_type": "Project",
+        "value": projectDetails.projectDescription.projectName + " by " + projectDetails.projectDescription.artistName
 				}
 			],
 
-			"website": projectDetails.projectDescription.artistWebsite,
-			"script type": projectDetails.projectScriptInfo.scriptTypeAndVersion,
-			"aspect ratio (w/h)": projectDetails.projectScriptInfo.aspectRatio,
-			"tokenID": request.params.tokenId,
-			"tokenHash": tokenHashes,
-			"license": projectDetails.projectDescription.license,
-			"image_url": "https://media.digigallery.xyz/image/" + request.params.tokenId
-		});
+    "website": projectDetails.projectDescription.artistWebsite,
+    "script type": projectDetails.projectScriptInfo.scriptTypeAndVersion,
+    "aspect ratio (w/h)": projectDetails.projectScriptInfo.aspectRatio,
+    "tokenID": request.params.tokenId,
+    "tokenHash": tokenHashes,
+    "license": projectDetails.projectDescription.license,
+    "image": projectDetails.projectURIInfo.projectBaseURI.slice(0, -6) + "image/" + request.params.tokenId
+  });
 });
 
 app.get('/generator/:tokenId', async (request, response) => {
-	const projectId = await contract.methods.tokenIdToProjectId(request.params.tokenId).call();
-	const projectDetails = await getDetails(projectId);
-	const script = await getScript(projectId);
-	const tokenData = await getToken(request.params.tokenId);
+  const projectId = await contract.methods.tokenIdToProjectId(request.params.tokenId).call();
+  const projectDetails = await getDetails(projectId);
+  const script = await getScript(projectId, projectDetails.projectScriptInfo.scriptCount);
+  const tokenData = await getToken(request.params.tokenId);
   const data = buildData(tokenData.hashes, request.params.tokenId);
-	response.set('Content-Type', 'text/html');
-	if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'p5@1.0.0') {
-		response.render('generator_p5js', { script: script, data: data })
-	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'aframe@1.0.0') {
-		response.render('generator_aframe', { script: script, data: data })
-	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'tone@1.0.0') {
-		response.render('generator_tonejs', { script: script, data: data })
-	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'paper@1.0.0') {
-		response.render('generator_paperjs', { script: script, data: data })
-	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'babylon@1.0.0') {
-		response.render('generator_babylon', { script: script, data: data })
-	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'svg@1.0.0') {
-		response.render('generator_svg', { script: script, data: data })
-	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'regl@1.0.0') {
-		response.render('generator_regl', { script: script, data: data })
-	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'zdog@1.0.0') {
-		response.render('generator_zdog', { script: script, data: data })
-	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'threejs@1.0.0') {
-		response.render('generator_threejs', { script: script, data: data })
-	} else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'js') {
-		response.render('generator_js', { script: script, data: data })
-	} else {
-		response.send('token does not exist');
-	}
+  response.set('Content-Type', 'text/html');
+  if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'p5@1.0.0') {
+    response.render('generator_p5js', { script: script, data: data })
+  } else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'aframe@1.0.0') {
+    response.render('generator_aframe', { script: script, data: data })
+  } else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'tone@1.0.0') {
+    response.render('generator_tonejs', { script: script, data: data })
+  } else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'paper@1.0.0') {
+    response.render('generator_paperjs', { script: script, data: data })
+  } else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'babylon@1.0.0') {
+    response.render('generator_babylon', { script: script, data: data })
+  } else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'svg@1.0.0') {
+    response.render('generator_svg', { script: script, data: data })
+  } else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'regl@1.0.0') {
+    response.render('generator_regl', { script: script, data: data })
+  } else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'zdog@1.0.0') {
+    response.render('generator_zdog', { script: script, data: data })
+  } else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'threejs@1.0.0') {
+    response.render('generator_threejs', { script: script, data: data })
+  } else if (projectDetails.projectScriptInfo.scriptTypeAndVersion === 'js') {
+    response.render('generator_js', { script: script, data: data })
+  } else {
+    response.send('token does not exist');
+  }
 
 });
-
 /*
 app.get("/image/:tokenId/:refresh?", async (request, response) => {
 	//check if token exists
@@ -225,93 +224,93 @@ async function serveScriptResult(tokenId, ratio) {
 */
 
 function timeout(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 };
 
 async function getToken(tokenId) {
-	const projectId = await contract.methods.tokenIdToProjectId(tokenId).call();
-	const hashes = await contract.methods.tokenIdToHash(tokenId).call();
-	return { tokenId, projectId, hashes };
+  const projectId = await getProjectId(tokenId);
+  const hashes = await getTokenHashes(tokenId);
+  return { tokenId, projectId, hashes };
 }
 
 async function getDetails(projectId) {
-	const projectDescription = await getProjectDescription(projectId);
-	const projectScriptInfo = await getScriptInfo(projectId);
-	const projectTokenInfo = await getTokenDetails(projectId);
-	const projectURIInfo = await getURIInfo(projectId);
-	return { projectDescription, projectScriptInfo, projectTokenInfo, projectURIInfo };
+  const projectDescription = await getProjectDescription(projectId);
+  const projectScriptInfo = await getScriptInfo(projectId);
+  const projectTokenInfo = await getTokenDetails(projectId);
+  const projectURIInfo = await getURIInfo(projectId);
+  return { projectDescription, projectScriptInfo, projectTokenInfo, projectURIInfo };
 }
 
 async function getScript(projectId, scriptCount) {
-	let scripts = [];
-	for (let i = 0; i < scriptCount; i++) {
-		let newScript = await contract.methods.projectScriptByIndex(projectId, i).call();
-		scripts.push(newScript);
-	}
-	return scripts.join(' ');
+  let scripts = [];
+  for (let i = 0; i < scriptCount; i++) {
+    let newScript = await contract.methods.projectScriptByIndex(projectId, i).call();
+    scripts.push(newScript);
+  }
+  return scripts.join(' ');
 }
 
 async function getScriptInfo(projectId) {
-	const result = await contract.methods.projectScriptDetails(projectId).call();
-	return { scriptTypeAndVersion: result[0], scriptCount: result[1], aspectRatio: result[2] };
+  const result = await contract.methods.projectScriptDetails(projectId).call();
+  return { scriptTypeAndVersion: result[0], scriptCount: result[1], aspectRatio: result[2] };
 }
 
 async function getProjectDescription(projectId) {
-	const result = await contract.methods.projectDetails(projectId).call();
-	return { projectName: result[0], artistName: result[1], description: result[2], artistWebsite: result[3], license: result[4] };
+  const result = await contract.methods.projectDetails(projectId).call();
+  return { projectName: result[0], artistName: result[1], description: result[2], artistWebsite: result[3], license: result[4] };
 }
 
 async function getURIInfo(projectId) {
-	const result = await contract.methods.projectURIInfo(projectId).call();
-	return { projectBaseURI: result[0], projectBaseIpfsURI: result[1], useIpfs: result[2] };
+  const result = await contract.methods.projectURIInfo(projectId).call();
+  return { projectBaseURI: result[0], projectBaseIpfsURI: result[1], useIpfs: result[2] };
 }
 
 async function getTokenDetails(projectId) {
-	const tokens = await contract.methods.projectStateData(projectId).call();
-	const result = await contract.methods.projectArtistPaymentInfo(projectId).call();
-	return { artistAddress: result[0], invocations: result[1], maxInvocations: result[2], active: result[3], paused: result[4], locked: result[5], additionalPayeePrimarySales: result[6], additionalPayeePrimarySalesPercentage: result[7], tokens: tokens };
+  const tokens = await contract.methods.projectStateData(projectId).call();
+  const result = await contract.methods.projectArtistPaymentInfo(projectId).call();
+  return { artistAddress: result[0], invocations: result[1], maxInvocations: result[2], active: result[3], locked: result[4], additionalPayeePrimarySales: result[5], additionalPayeePrimarySalesPercentage: result[6], tokens: tokens };
 }
 
 async function getTokenRoyaltyInfo(tokenId) {
-	const result = await contract.methods.getRoyaltyData(tokenId).call();
-	return { artistAddress: result[0], additionalPayee: result[1], additionalPayeePercentage: result[2], royaltyFeeByID: result[3] };
+  const result = await contract.methods.getRoyaltyData(tokenId).call();
+  return { artistAddress: result[0], additionalPayee: result[1], additionalPayeePercentage: result[2], royaltyFeeByID: result[3] };
 }
 
 async function getTokenHashes(tokenId) {
-	const result = await contract.methods.tokenIdToHash(tokenId).call();
-	return result;
+  const result = await contract.methods.tokenIdToHash(tokenId).call();
+  return result;
 }
 
 async function getPlatformInfo() {
-	//	const totalSupply = await contract.methods.totalSupply().call();
-	//const projectIds = await contract.methods.showAllProjectIds().call(); //cap S
-	const nextProjectId = await contract.methods.nextProjectId().call(); //change platofrm_
-	const name = await contract.methods.name().call();
-	const symbol = await contract.methods.symbol().call();
-	const address = '0x151B912f2c7c1CB9CEc9d4e86cd1c2F7f2ECF77b';
-	return { nextProjectId, name, symbol, address };
+  //	const totalSupply = await contract.methods.totalSupply().call();
+  //const projectIds = await contract.methods.showAllProjectIds().call(); //cap S
+  const nextProjectId = await contract.methods.nextProjectId().call(); //change platofrm_
+  const name = await contract.methods.name().call();
+  const symbol = await contract.methods.symbol().call();
+  const address = '0x151B912f2c7c1CB9CEc9d4e86cd1c2F7f2ECF77b';
+  return { nextProjectId, name, symbol, address };
 }
 
 async function getProjectId(tokenId) {
-	const result = await contract.methods.tokenIdToProjectId(tokenId).call();
-	return result;
+  const result = await contract.methods.tokenIdToProjectId(tokenId).call();
+  return result;
 }
 
-function buildData(hash, tokenId) {
-	//to expose token hashes use let hashes = tokenData.hashes[0] (example if only one hash is minted)
-	let data = {};
-	data.hash = hash;
-	data.tokenId = tokenId;
-	return `let tokenData = ${JSON.parse(data)}`;
+function buildData(hashes, tokenId) {
+  //to expose token hashes use let hashes = tokenData.hashes[0] (example if only one hash is minted)
+  let data = {};
+  data.hashes = hashes;
+  data.tokenId = tokenId;
+  return `let tokenData = ${JSON.stringify(data)}`;
 }
 
 function toBuffer(ab) {
-	var buf = Buffer.alloc(ab.byteLength);
-	var view = new Uint8Array(ab);
-	for (var i = 0; i < buf.length; ++i) {
-		buf[i] = view[i];
-	}
-	return buf;
+  var buf = Buffer.alloc(ab.byteLength);
+  var view = new Uint8Array(ab);
+  for (var i = 0; i < buf.length; ++i) {
+    buf[i] = view[i];
+  }
+  return buf;
 }
 
 
